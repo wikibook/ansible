@@ -1,0 +1,38 @@
+---
+- name: 마리아DB의 yum 리포지터리 추가
+  yum_repository:
+    name: mariadb
+    description: 마리아DB
+    baseurl: "http://yum.mariadb.org/{{ mariadb_version }}/centos7-amd64"
+    gpgkey: https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+    gpgcheck: true
+
+- name: 마리아DB 서버와 관련된 의존 패키지 설치
+  yum:
+    name: "{{ item }}"
+  with_items:
+    - MariaDB-server
+    - MariaDB-client
+    - MariaDB-devel
+    - MySQL-python
+
+- name: 마리아DB 서버 시작과 자동 시작 적용
+  service:
+    name: mariadb
+    state: started
+    enabled: true
+
+- name: 시스템용 데이터베이스 생성
+  mysql_db:
+    name: "{{ item.name }}"
+    encoding: "{{ item.encoding|default('utf8') }}"
+    collation: "{{ item.collation|default('utf8_general_ci') }}"
+  with_items: "{{ mariadb_databases }}"
+
+- name: 시스템용 사용자 생성
+  mysql_user:
+    name: "{{ item.name }}"
+    password: "{{ item.password }}"
+    host: "{{ item.host|default('localhost') }}"
+    priv: "{{ item.priv|default('') }}"
+  with_items: "{{ mariadb_users }}"

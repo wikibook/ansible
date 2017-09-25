@@ -1,0 +1,19 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+  tasks:
+    - name: create instance
+      os_server:
+        cloud: production
+        state: present
+        timeout: 600
+        name: www1
+        image: 8335a68a-4cde-4337-965a-316d9cd58e42 
+        key_name: default
+        security_groups: webserver
+        flavor: m1.small
+        nics:
+          - net-id: 5a0f8eec-85ca-4f1a-bc42-51946c9ac65b 
+        meta:
+          hostname: deploy-by-ansible

@@ -1,0 +1,26 @@
+---
+- name: Remi 리포지터리 설치
+  yum:
+    name: https://rpms.remirepo.net/enterprise/remi-release-7.rpm
+
+- name: php-fpm과 관련 모듈 설치
+  yum:
+    name: "{{ item }}"
+    enablerepo: "remi-php{{ php_fpm_php_version|replace('.', '') }}"
+  with_items:
+    - php-fpm
+    - php-devel
+    - php-enchant
+    - php-mbstring
+    - php-process
+    - php-xml
+    - php-gd
+    - "{{ php_fpm_additional_packages }}"
+  notify:
+    - PHP-FPM 재시작
+
+- name: PHP-FPM 재시작
+  service:
+    name: php-fpm
+    state: started
+    enabled: true

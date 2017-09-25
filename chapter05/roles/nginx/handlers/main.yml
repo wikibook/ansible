@@ -1,0 +1,5 @@
+---
+- name: 엔진엑스 리로드
+  service:
+    name: nginx
+    state: reloaded

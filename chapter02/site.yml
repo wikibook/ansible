@@ -1,0 +1,25 @@
+---
+- name: 플레이북 튜토리얼
+  hosts: all
+  become: true
+  tasks:
+    - name: libselinux-python 설치
+      yum:
+        name: libselinux-python
+        state: present
+
+    - name: EPEL 리포지터리 설치
+      yum:
+        name: epel-release
+        state: present
+
+    - name: 엔진엑스 설치
+      yum:
+        name: nginx
+        state: present
+
+    - name: 엔진엑스 서비스 시작과 자동 시작 설정
+      service:
+        name: nginx
+        state: started
+        enabled: true

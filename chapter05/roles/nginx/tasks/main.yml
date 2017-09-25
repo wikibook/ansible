@@ -1,0 +1,41 @@
+---
+- name: libselinux-python과 EPEL 리포지터리 설치
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - libselinux-python
+    - epel-release
+
+- name: 엔진엑스 설치
+  yum:
+    name: nginx
+    state: present
+
+- name: 엔진엑스 시작과 자동 시작 설정
+  service:
+    name: nginx
+    state: started
+    enabled: true
+
+- name: nginx.conf 템플릿 활용
+  template:
+    src: nginx.j2.conf
+    dest: /etc/nginx/nginx.conf
+    validate: nginx -t -c %s
+  notify:
+    - 엔진엑스 리로드
+
+- name: 엔진엑스용 그룹 작성
+  group:
+    name: "{{ nginx_group }}"
+    system: true
+
+- name: 엔진엑스용 사용자 작성
+  user:
+    name: "{{ nginx_user }}"
+    home: /var/lib/nginx
+    shell: /sbin/nologin
+    groups: "{{ nginx_group }}"
+    append: true
+    system: true

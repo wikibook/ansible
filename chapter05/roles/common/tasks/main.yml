@@ -1,0 +1,39 @@
+---
+- name: 파이썬 SE리눅스 라이브러리 설치
+  yum:
+    name: "{{ item }}"
+  with_items:
+    - libselinux-python
+    - policycoreutils-python
+
+- name: SELinux 비활성화
+  selinux:
+    policy: targeted
+    state: permissive
+  register: common_make_selinux_permissive
+
+- block:
+    - name: SE리눅스 상태를 변경할 때에 필요에 따라 OS 재시작
+      shell: sleep 2 && shutdown -r now "Ansible reboot"
+      async: 1
+      poll: 0
+      changed_when: true
+
+    - name: 재시작이 끝날 때까지 대기
+      local_action: wait_for
+      args:
+        host: "{{ ansible_host|default(inventory_hostname) }}"
+        port: "{{ ansible_ssh_port|default(22) }}"
+        state: started
+        search_regex: OpenSSH
+        delay: 30
+        timeout: 600
+      become: false
+
+  when: common_make_selinux_permissive|changed and 'state change will take effect next reboot' in common_make_selinux_permissive.msg
+
+- name: 방화벽의 활성화
+  service:
+    name: firewalld
+    state: started
+    enabled: true

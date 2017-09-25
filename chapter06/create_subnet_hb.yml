@@ -1,0 +1,12 @@
+---
+  - hosts: localhost
+    connection: local
+    tasks:
+      - name: Create subnet of heartbeat
+        os_subnet:
+          cloud: production
+          state: present
+          name: prod-subnet-hb 
+          network_name: prod-heartbeat 
+          cidr: 192.168.1.0/24 
+          no_gateway_ip: true

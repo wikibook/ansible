@@ -1,0 +1,5 @@
+---
+- name: Firewalld 서비스 재시작
+  service:
+    name: firewalld
+    state: restarted
